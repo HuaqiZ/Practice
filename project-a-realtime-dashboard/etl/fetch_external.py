@@ -1,6 +1,7 @@
 import requests
 import json
 import csv
+import os
 
 data = None
 statusCode = None
@@ -31,10 +32,12 @@ def append_data():
         "total_supply",
         "circulating_supply",
     ]
-    filename = "raw_data.csv"
+    current_dir = os.path.dirname(__file__)
+    csv_path = os.path.join(current_dir, "..", "data", "raw_data.csv")
+    csv_path = os.path.abspath(csv_path)
 
     filtered_data = [{field: item.get(field) for field in fields} for item in data]
-    with open(filename, "w") as csvfile:
+    with open(csv_path, "w") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fields)
         writer.writeheader()
         writer.writerows(filtered_data)

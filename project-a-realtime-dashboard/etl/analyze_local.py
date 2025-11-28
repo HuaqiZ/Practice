@@ -1,9 +1,12 @@
 import csv
+import os
 
-filename = "raw_data.csv"
+current_dir = os.path.dirname(__file__)
+csv_path = os.path.join(current_dir, "..", "data", "raw_data.csv")
+csv_path = os.path.abspath(csv_path)
 rows = []
 
-with open(filename, "r") as csvfile:
+with open(csv_path, "r") as csvfile:
     csvreader = csv.DictReader(csvfile)
 
     for row in csvreader:
