@@ -11,6 +11,7 @@ def connect():
 
 def fetch(query, params=()):
     conn = None
+    cur = None
     try:
         conn = connect()
         cur = conn.cursor()
@@ -26,6 +27,7 @@ def fetch(query, params=()):
 
 def execute(query, params=()):
     conn = None
+    cur = None
     try:
         conn = connect()
         cur = conn.cursor()

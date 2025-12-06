@@ -1,6 +1,7 @@
 from typing import Union
 
 from fastapi import FastAPI
+from queries import get_latest_price, delete_coin
 
 app = FastAPI()
 
@@ -18,3 +19,13 @@ def read_item(item_id: int, q: Union[str, None] = None):
 @app.get("/test")
 def test():
     return {"status": "ok"}
+
+@app.get("/price/{symbol}")
+def latest_price(symbol: str):
+    result = get_latest_price(symbol)
+    return result
+
+@app.delete("/coin/{symbol}")
+def delete(symbol:str):
+    delete_coin(symbol)
+    return {"status": "deleted"}
