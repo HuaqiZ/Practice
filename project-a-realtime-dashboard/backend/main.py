@@ -1,9 +1,10 @@
-from typing import Union
-
 from fastapi import FastAPI
-from queries import get_latest_price, delete_coin
+from queries import delete_coin
+from routers.prices import router as prices_router
 
 app = FastAPI()
+
+app.include_router(prices_router)
 
 
 @app.get("/")
@@ -11,21 +12,7 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
-
-
-@app.get("/test")
-def test():
-    return {"status": "ok"}
-
-@app.get("/price/{symbol}")
-def latest_price(symbol: str):
-    result = get_latest_price(symbol)
-    return result
-
 @app.delete("/coin/{symbol}")
-def delete(symbol:str):
+def delete(symbol: str):
     delete_coin(symbol)
     return {"status": "deleted"}
