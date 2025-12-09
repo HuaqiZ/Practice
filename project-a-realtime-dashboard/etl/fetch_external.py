@@ -2,18 +2,38 @@ import requests
 import json
 import csv
 import os
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("etl.log", encoding="utf-8"),
+        logging.StreamHandler(),
+    ],
+)
 
 data = None
 statusCode = None
 
 
 def fetch_data():
-    x = requests.get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd")
+    logging.info("Fetching data from public API...")
+
     global data
     global statusCode
 
-    data = json.loads(x.text)
-    statusCode = x.status_code
+    try:
+        x = requests.get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd")
+        data = json.loads(x.text)
+        statusCode = x.status_code
+
+        if statusCode != 200:
+            logging.error(f"API returned error: {statusCode}")
+            return
+        
+    except Exception as e:
+        logging.error(f"API request failed: {e}")
 
 
 def print_data():
@@ -23,6 +43,10 @@ def print_data():
 
 
 def append_data():
+    if not data:
+        logging.error("No data fetched.")
+        return
+    
     fields = [
         "id",
         "name",
@@ -46,3 +70,5 @@ def append_data():
 fetch_data()
 print_data()
 append_data()
+
+logging.info("Fetch ETL completed.")
