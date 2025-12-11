@@ -6,7 +6,7 @@ load_dotenv()
 
 
 def connect():
-    return psycopg2.connect(os.getenv("DB_URL"))
+    return psycopg2.connect(os.getenv("DATABASE_URL"))
 
 
 def fetch(query, params=()):
