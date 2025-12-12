@@ -9,5 +9,12 @@ def get_latest_price(symbol: str):
     return {"id": row[0], "current_price": row[1]}
 
 
+def get_all_price():
+    rows = fetch("SELECT id, current_price FROM coins")
+    if not rows:
+        return None
+    return [{"id": row[0], "current_price": row[1]} for row in rows]
+
+
 def delete_coin(symbol: str):
     execute("DELETE FROM coins WHERE id = %s", (symbol,))
