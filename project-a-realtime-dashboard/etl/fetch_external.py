@@ -24,14 +24,16 @@ def fetch_data():
     global statusCode
 
     try:
-        x = requests.get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd")
+        x = requests.get(
+            "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd"
+        )
         data = json.loads(x.text)
         statusCode = x.status_code
 
         if statusCode != 200:
             logging.error(f"API returned error: {statusCode}")
             return
-        
+
     except Exception as e:
         logging.error(f"API request failed: {e}")
 
@@ -46,7 +48,7 @@ def append_data():
     if not data:
         logging.error("No data fetched.")
         return
-    
+
     fields = [
         "id",
         "name",
@@ -67,8 +69,13 @@ def append_data():
         writer.writerows(filtered_data)
 
 
-fetch_data()
-print_data()
-append_data()
+def main():
+    fetch_data()
+    print_data()
+    append_data()
+
+
+if __name__ == "__main__":
+    main()
 
 logging.info("Fetch ETL completed.")

@@ -16,7 +16,7 @@ def priceStatus():
     return result
 
 
-@router.get("/latest", response_model=Price)
+@router.get("/{symbol}", response_model=Price)
 def price(symbol: str):
     result = get_latest_price(symbol)
 

@@ -15,14 +15,12 @@ logging.basicConfig(
 
 load_dotenv()
 
-rows = []
-
 
 def load_csv():
+    rows = []
     current_dir = os.path.dirname(__file__)
     csv_path = os.path.join(current_dir, "..", "data", "raw_data.csv")
     csv_path = os.path.abspath(csv_path)
-    global rows
 
     with open(csv_path, "r", encoding="utf-8") as csvfile:
         csvreader = csv.DictReader(csvfile)
@@ -31,10 +29,11 @@ def load_csv():
             rows.append(row)
 
     logging.info(f"Loaded {len(rows)} rows from CSV.")
+    return rows
 
 
-def insert_into_db():
-    conn = psycopg2.connect(os.getenv("DB_URL"))
+def insert_into_db(rows):
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
     cur = conn.cursor()
 
     logging.info(f"Starting insert for {len(rows)} rows")
@@ -43,7 +42,14 @@ def insert_into_db():
         INSERT INTO coins(
         id, name, current_price, market_cap, price_change_percentage_24h, total_supply, circulating_supply
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s);
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (id)
+        DO UPDATE SET
+            current_price = EXCLUDED.current_price,
+            market_cap = EXCLUDED.market_cap,
+            price_change_percentage_24h = EXCLUDED.price_change_percentage_24h;
+
+  ;
     """
 
     success = 0
@@ -63,6 +69,7 @@ def insert_into_db():
             )
             success += 1
         except Exception as e:
+            conn.rollback()
             logging.error(f"Insert failed for row {row.get('id')}: {e}")
 
     conn.commit()
@@ -71,5 +78,15 @@ def insert_into_db():
     logging.info("Insert completed {success} rows")
 
 
-load_csv()
-insert_into_db()
+def main():
+    rows = load_csv()
+
+    if not rows:
+        logging.warning("No data to insert")
+        return
+
+    insert_into_db(rows)
+
+
+if __name__ == "__main__":
+    main()
