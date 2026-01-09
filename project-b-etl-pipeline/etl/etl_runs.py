@@ -1,14 +1,14 @@
-import psycopg2
-import os
 from contextlib import contextmanager
 from dotenv import load_dotenv
+import traceback
+from common.db import connect
 
 load_dotenv()
 
 
 @contextmanager
 def track_etl_run(job_name: str):
-    conn = psycopg2.connect(os.getenv("DB_URL"))
+    conn = connect()
     cur = conn.cursor()
     cur.execute(
         """
@@ -32,13 +32,14 @@ def track_etl_run(job_name: str):
         )
         conn.commit()
     except Exception as e:
+        full_msg = traceback.format_exc()
         cur.execute(
             """
                 UPDATE etl_runs
                 SET status = 'failed', end_time = NOW(), message=%s
                 WHERE id = %s    
             """,
-            (str(e), run_id),
+            (full_msg, run_id),
         )
         conn.commit()
         raise

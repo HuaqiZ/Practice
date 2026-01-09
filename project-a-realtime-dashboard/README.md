@@ -40,3 +40,6 @@ Start frontend:
 ```bash
 npm run dev
 ```
+
+> This project is designed to be run locally.
+> It is not deployed to avoid keeping Docker containers running continuously.
